@@ -1,0 +1,93 @@
+enum TypeCompte {
+    COURANT
+    EPARGNE
+}
+
+enum TypeTransaction {
+    DEPOT
+    RETRAIT
+}
+
+type Query {
+    allComptes: [Compte]
+    compteById(id: ID): Compte
+    totalSolde: SoldeStats
+    compteTransactions(id: ID): [Transaction]
+    allTransactions: [Transaction]
+    transactionStats: TransactionStats
+    releve(compteId: ID): Releve
+}
+
+type Compte {
+    id: ID
+    solde: Float
+    dateCreation: String
+    type: TypeCompte
+    soldeCalcule: Float
+    nombreTransactions: Int
+}
+
+type SoldeStats {
+    count: Int
+    sum: Float
+    average: Float
+}
+
+input CompteRequest {
+    solde: Float
+    dateCreation: String
+    type: TypeCompte
+}
+
+type Transaction {
+    id: ID
+    montant: Float
+    date: String
+    type: TypeTransaction
+    libelle: String
+    compte: Compte
+}
+
+input TransactionRequest {
+    compteId: ID
+    montant: Float
+    date: String
+    type: TypeTransaction
+    libelle: String
+}
+
+type TransactionStats {
+    count: Int
+    sumDepots: Float
+    sumRetraits: Float
+    balance: Float
+}
+
+type VirementResult {
+    sourceId: ID
+    destinationId: ID
+    montant: Float
+    soldeSource: Float
+    soldeDestination: Float
+}
+
+input VirementRequest {
+    sourceId: ID
+    destinationId: ID
+    montant: Float
+    libelle: String
+}
+
+type Releve {
+    compteId: ID
+    soldeInitial: Float
+    soldeCalcule: Float
+    transactions: [Transaction]
+}
+
+type Mutation {
+    saveCompte(compte: CompteRequest): Compte
+    addTransaction(transaction: TransactionRequest): Transaction
+    virement(virement: VirementRequest): VirementResult
+    deleteCompte(id: ID): Boolean
+}
