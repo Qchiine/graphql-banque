@@ -294,6 +294,25 @@ class CompteGraphQLTests {
     }
 
     @Test
+    void allTransactions_exposeLeCompteSansErreurDeChargement() {
+        Long id = creerCompte(1000.0, "COURANT");
+        graphQlTester.document("""
+                        mutation($id: ID) {
+                            addTransaction(transaction: {compteId: $id, montant: 100.0, date: "2024-11-19", type: DEPOT}) { id }
+                        }
+                        """)
+                .variable("id", id)
+                .execute()
+                .path("addTransaction.id").entity(String.class).satisfies(valeur -> assertThat(valeur).isNotBlank());
+
+        graphQlTester.document("{ allTransactions { id montant compte { id solde type } } }")
+                .execute()
+                .path("allTransactions").entityList(Object.class).hasSize(1)
+                .path("allTransactions[0].compte.solde").entity(Double.class).isEqualTo(1000.0)
+                .path("allTransactions[0].compte.type").entity(String.class).isEqualTo("COURANT");
+    }
+
+    @Test
     void saveCompte_refuseUnSoldeNegatif() {
         graphQlTester.document("""
                         mutation {

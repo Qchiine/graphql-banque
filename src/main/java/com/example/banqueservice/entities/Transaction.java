@@ -39,7 +39,7 @@ public class Transaction {
 
     private String libelle;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "compte_id", nullable = false)
     private Compte compte;
 }
